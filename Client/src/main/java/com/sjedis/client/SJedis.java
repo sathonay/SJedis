@@ -20,8 +20,5 @@ public interface SJedis {
 
     void addHandler(PacketHandleEvent event);
 
-    //Object getNet(String key);
-
     boolean close();
-
 }

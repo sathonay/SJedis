@@ -10,22 +10,19 @@ import java.net.Socket;
 
 public class LoggingThread extends Thread{
 
-    private final ServerSocket serverSocket;
+    private final Server server;
 
-    public LoggingThread(ServerSocket serverSocket) {
-        this.serverSocket = serverSocket;
+    public LoggingThread(Server server) {
+        this.server = server;
     }
 
     @Override
     public void run() {
         while (true) {
-            try {
-                Socket socket = serverSocket.accept();
-                CacheSocket cacheSocket = new CacheSocket(socket);
-                System.out.println("logging [ip: " + /*socket.getInetAddress() +*/ ", id: " + cacheSocket.getId() + "]");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Socket socket = server.accept();
+            if (socket == null) continue;
+            CacheSocket cacheSocket = new CacheSocket(socket, server);
+            System.out.println("New Connection " + cacheSocket.getId());
         }
     }
 }

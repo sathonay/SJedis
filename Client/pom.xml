@@ -11,12 +11,4 @@
 
     <artifactId>client</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.sathonay.sjedis</groupId>
-            <artifactId>sjedis-client-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
-
 </project>

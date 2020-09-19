@@ -11,21 +11,22 @@ public class Server {
 
     private ServerSocket serverSocket;
     private final String password;
+    private final Integer port;
 
-    public Server(String[] args) {
-        password = args[0];
+    public Server(String password, Integer port) {
+        this.password = password;
+        this.port = port;
         Runtime.getRuntime().addShutdownHook(new ShutdownThread());
 
         try {
 
-            this.serverSocket = new ServerSocket(15342);
+            this.serverSocket = new ServerSocket(port);
 
             Thread loggingThread = new LoggingThread(this);
 
             loggingThread.start();
 
             System.out.println("SJedis server started!");
-            return;
         } catch (IOException e) {
             System.out.println("init failed!");
             System.exit(0);

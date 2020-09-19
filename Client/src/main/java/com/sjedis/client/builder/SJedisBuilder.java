@@ -1,5 +1,6 @@
 package com.sjedis.client.builder;
 
+import com.sjedis.client.PreparedSet;
 import com.sjedis.client.SJedis;
 import com.sjedis.client.event.PacketHandleEvent;
 import com.sjedis.common.map.SJedisConcurrentHashMap;
@@ -54,6 +55,10 @@ public class SJedisBuilder{
             @Override
             public boolean connect() {
                 try {
+
+
+                    if (optional != null && optional.isPresent() && optional.get().isConnected()) return false;
+
                     optional = Optional.of(new Socket(ip, port));
                     if (optional.isPresent()) {
                         Socket socket = optional.get();
@@ -100,6 +105,12 @@ public class SJedisBuilder{
                                         continue;
                                     }
 
+                                    if (object instanceof MultipleKeyValuePacket) {
+                                        MultipleKeyValuePacket packet = (MultipleKeyValuePacket) object;
+                                        Map<String, Object> map = packet.value;
+                                        map.forEach(CACHE_MAP::removeIfNullOrPut);
+                                    }
+
                                     //HANDLERS.forEach(event -> event.handleObjectEvent(object));
                                 } catch (IOException | ClassNotFoundException e) {
                                     e.printStackTrace();
@@ -118,16 +129,29 @@ public class SJedisBuilder{
             }
 
             @Override
-            public void set(String key, Object value) {
+            public SJedis send(String key, Object value) {
+                CACHE_MAP.removeIfNullOrPut(key, value);
+                this.sendSerializable(new KeyValuePacket(key, value));
+                return this;
+            }
 
-                optional.ifPresent(socket -> {
-                    try {
-                        CACHE_MAP.removeIfNullOrPut(key, value);
-                        this.sendSerializable(new KeyValuePacket(key, value));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
+            @Override
+            public SJedis send(PreparedSet preparedSet) {
+                this.send(preparedSet.toMap());
+                return this;
+            }
+
+            @Override
+            public SJedis send(Map<String, Object> map) {
+                this.CACHE_MAP.putAll(map);
+                this.sendSerializable(new MultipleKeyValuePacket(map));
+                return this;
+            }
+
+            @Override
+            public SJedis updateNumber(String key, double number) {
+                this.sendSerializable(new UpdateNumberValuePacket(key, number));
+                return this;
             }
 
             @Override
@@ -140,21 +164,14 @@ public class SJedisBuilder{
                 return CACHE_MAP.getOrDefault(key, defaultValue);
             }
 
-            @Override
-            public void updateNumber(String key, double number) {
-                optional.ifPresent(socket -> {
-                    try {
-                        this.sendSerializable(new UpdateNumberValuePacket(key, number));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
-
-            private void sendSerializable(Serializable serializable) throws IOException {
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-                objectOutputStream.writeObject(serializable);
-                System.out.println(serializable);
+            private void sendSerializable(Serializable serializable) {
+                if (!optional.isPresent()) return;
+                try {
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+                    objectOutputStream.writeObject(serializable);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override

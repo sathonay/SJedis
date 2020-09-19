@@ -8,9 +8,13 @@ public interface SJedis {
 
     boolean connect();
 
-    void set(String key, Object value);
+    SJedis send(String key, Object value);
 
-    void updateNumber(String key, double number);
+    SJedis send(PreparedSet set);
+
+    SJedis send(Map<String, Object> map);
+
+    SJedis updateNumber(String key, double number);
 
     Object get(String key);
 

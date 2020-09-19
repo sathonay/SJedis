@@ -7,11 +7,9 @@ import com.sjedis.server.Server;
 import com.sjedis.server.model.CacheSocket;
 
 import java.io.*;
-import java.net.Socket;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class SocketThread extends Thread {
 
@@ -62,6 +60,29 @@ public class SocketThread extends Thread {
                             e.printStackTrace();
                         }
                     });
+                }
+
+                if (object instanceof MultipleKeyValuePacket) {
+                    MultipleKeyValuePacket packet = (MultipleKeyValuePacket) object;
+                    Map<String, Object> map = packet.value;
+
+                    //System.out.println("["+cacheSocket.getId() + "] " + "MultipleSet message coming i'm too busy for this shit");
+
+                    map.forEach((key, value) -> {
+                        CACHE_MAP.removeIfNullOrPut(key, value);
+                        System.out.println("[" + cacheSocket.getId() + "] " + key + " -> " + value);
+                    });
+
+                    Set<CacheSocket> socketSet = new HashSet<>(CacheSocket.getCacheSockets());
+                    socketSet.remove(cacheSocket);
+                    socketSet.forEach(cacheSocket1 -> {
+                        try {
+                            cacheSocket1.sendSerializable(packet);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
                 }
 
                 if (object instanceof UpdateNumberValuePacket) {

@@ -118,7 +118,7 @@ public class SocketThread extends Thread {
 
     private void redistribute(CacheSocket toRemove, Serializable toDistribute) {
         Set<CacheSocket> socketSet = new HashSet<>(CacheSocket.getCacheSockets());
-        if (toRemove != null) socketSet.remove(toRemove);
+        socketSet.remove(toRemove);
         socketSet.forEach(cacheSocket1 -> {
             try {
                 cacheSocket1.sendSerializable(toDistribute);

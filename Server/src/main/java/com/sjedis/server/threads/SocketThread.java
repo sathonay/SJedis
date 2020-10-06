@@ -73,16 +73,16 @@ public class SocketThread extends Thread {
                         System.out.println("[" + cacheSocket.getId() + "] " + key + " -> " + value);
                     });
 
-                    Set<CacheSocket> socketSet = new HashSet<>(CacheSocket.getCacheSockets());
-                    socketSet.remove(cacheSocket);
-                    socketSet.forEach(cacheSocket1 -> {
-                        try {
-                            cacheSocket1.sendSerializable(packet);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-
+//                    Set<CacheSocket> socketSet = new HashSet<>(CacheSocket.getCacheSockets());
+//                    socketSet.remove(cacheSocket);
+//                    socketSet.forEach(cacheSocket1 -> {
+//                        try {
+//                            cacheSocket1.sendSerializable(packet);
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    });
+                    redistribute(cacheSocket, packet);
                 }
 
                 if (object instanceof UpdateNumberValuePacket) {
@@ -99,19 +99,32 @@ public class SocketThread extends Thread {
 
                     KeyValuePacket newPacket = new KeyValuePacket(packet.key, value);
 
-                    Set<CacheSocket> socketSet = new HashSet<>(CacheSocket.getCacheSockets());
-                    socketSet.forEach(cacheSocket1 -> {
-                        try {
-                            cacheSocket1.sendSerializable(newPacket);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
+//                    Set<CacheSocket> socketSet = new HashSet<>(CacheSocket.getCacheSockets());
+//                    socketSet.forEach(cacheSocket1 -> {
+//                        try {
+//                            cacheSocket1.sendSerializable(newPacket);
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    });
+                    redistribute(null, newPacket);
                 }
 
             }
         } catch (IOException | ClassNotFoundException e) {
 			cacheSocket.destroy();
         }
+    }
+
+    private void redistribute(CacheSocket toRemove, Serializable toDistribute) {
+        Set<CacheSocket> socketSet = new HashSet<>(CacheSocket.getCacheSockets());
+        if (toRemove != null) socketSet.remove(toRemove);
+        socketSet.forEach(cacheSocket1 -> {
+            try {
+                cacheSocket1.sendSerializable(toDistribute);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

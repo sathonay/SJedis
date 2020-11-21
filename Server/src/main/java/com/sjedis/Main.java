@@ -10,21 +10,12 @@ public class Main {
             return;
         }
 
-        String password = null;
-
-        Integer port;
+        String password = args.length > 1 ? args[1] : null;
 
         try {
-            port = Integer.parseInt(args[0]);
+            new Server(Integer.parseInt(args[0]), password);
         } catch (NumberFormatException exception) {
             System.err.println("The port is not a valid number");
-            return;
         }
-
-        if (args.length > 1) {
-            password = args[1];
-        }
-
-        new Server(port, password);
     }
 }

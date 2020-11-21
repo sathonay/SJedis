@@ -1,4 +1,4 @@
-package com.sathonay.common.packet;
+package com.sjedis.common.packet;
 
 public class PasswordPacket extends Packet {
 

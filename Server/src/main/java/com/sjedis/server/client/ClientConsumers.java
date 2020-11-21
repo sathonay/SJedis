@@ -1,6 +1,10 @@
 package com.sjedis.server.client;
 
-import com.sathonay.common.packet.PasswordPacket;
+import com.sjedis.common.packet.PasswordPacket;
+import com.sjedis.common.packet.RequestPacket;
+import com.sjedis.common.packet.ResponsePacket;
+import com.sjedis.common.packet.SetPacket;
+import com.sjedis.common.response.Response;
 import com.sjedis.server.Server;
 import javafx.util.Pair;
 
@@ -19,6 +23,17 @@ public class ClientConsumers {
             Server server = Server.getINSTANCE();
             if (!connection.isLogin()
                     && (server.getPassword() == null || server.getPassword().equals(pair.getValue().password))) connection.setLogin(true);
+        });
+
+        CONSUMERS.put(SetPacket.class, (Consumer<Pair<ClientConnection, SetPacket>>) pair -> Server.getINSTANCE().getCache().putAll(pair.getValue().map));
+
+        CONSUMERS.put(RequestPacket.class, (Consumer<Pair<ClientConnection, RequestPacket>>) pair -> {
+            ClientConnection connection = pair.getKey();
+            RequestPacket packet = pair.getValue();;
+            Map<String, Object> responseMap = new HashMap<>();
+            Map<String, Object> cache = Server.getINSTANCE().getCache();
+            for (String key : packet.keys) responseMap.put(key, cache.get(key));
+            connection.send(new ResponsePacket(packet.requestID, new Response(responseMap)));
         });
     }
 

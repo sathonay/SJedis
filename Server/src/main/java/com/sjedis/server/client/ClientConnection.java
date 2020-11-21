@@ -1,14 +1,11 @@
 package com.sjedis.server.client;
 
-import com.sathonay.common.packet.Packet;
-import com.sathonay.common.packet.PasswordPacket;
+import com.sjedis.common.packet.Packet;
+import com.sjedis.common.packet.PasswordPacket;
 import javafx.util.Pair;
 import lombok.Data;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -43,8 +40,11 @@ public class ClientConnection {
         }
     }
 
+    private Thread thread;
+
     private void initConnectionThread() {
-        new Thread(this::waitObject).start();
+        thread = new Thread(this::waitObject);
+        thread.start();
     }
 
     private void waitObject() {
@@ -60,22 +60,41 @@ public class ClientConnection {
             ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
             return objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
+            close();
             return null;
         }
     }
 
+    public void send(Packet... packets) {
+        System.out.println(packets.length);
+        for (Packet packet : packets) sendSerializable(packet);
+    }
+
+    private void sendSerializable(Serializable serializable) {
+        try {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+            objectOutputStream.writeObject(serializable);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void interpretObject(Object object) {
-        if (object instanceof Packet) interpretPacket((Packet) object);
+        if ((!login && !(object instanceof PasswordPacket))) return; // TODO: close connection
+        System.out.println(object.getClass());
+        handleConsumer(object).ifPresent(consumer -> consumer.accept(new Pair<>(this, object)));
     }
 
-    private void interpretPacket(Packet packet) {
-        if ((!login && !(packet instanceof PasswordPacket))) return; // TODO: close connection
-        handleConsumer(packet).ifPresent(consumer -> {
-            consumer.accept(new Pair<>(this, packet));
-        });
-    }
-
-    private Optional<Consumer<Pair<ClientConnection, Packet>>> handleConsumer(Object object) {
+    private Optional<Consumer<Pair<ClientConnection, Object>>> handleConsumer(Object object) {
         return Optional.ofNullable(ClientConsumers.getConsumer(object.getClass()));
+    }
+
+    private void close() {
+        if (thread != null) thread.stop();
+
+        try {
+            socket.close();
+        } catch (IOException e) {
+        }
     }
 }

@@ -1,7 +1,8 @@
-package com.sjedis.server.client;
+package com.sjedis.server.client.builder;
 
 import com.sjedis.common.packet.Packet;
 import com.sjedis.common.packet.PasswordPacket;
+import com.sjedis.server.client.manager.ClientConnectionConsumersManager;
 import javafx.util.Pair;
 import lombok.Data;
 
@@ -11,11 +12,11 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 @Data
-public class ClientConnection {
+public class ClientConnectionBuilder {
 
     private final Socket socket;
 
-    public ClientConnection(Socket socket) {
+    public ClientConnectionBuilder(Socket socket) {
         this.socket = socket;
 
         initClientConnection();
@@ -79,16 +80,28 @@ public class ClientConnection {
     }
 
     private void interpretObject(Object object) {
-        if ((!login && !(object instanceof PasswordPacket))) return; // TODO: close connection
+        if ((!login && !(object instanceof PasswordPacket))) return;
         handleConsumer(object).ifPresent(consumer -> consumer.accept(new Pair<>(this, object)));
     }
 
-    private Optional<Consumer<Pair<ClientConnection, Object>>> handleConsumer(Object object) {
-        return Optional.ofNullable(ClientConsumers.getConsumer(object.getClass()));
+    private Optional<Consumer<Pair<ClientConnectionBuilder, Object>>> handleConsumer(Object object) {
+        return Optional.ofNullable(ClientConnectionConsumersManager.getConsumer(object.getClass()));
     }
 
-    private void close() {
+    public void close() {
+        System.out.println("Connection close " + socket.getInetAddress().getHostName() + "@" + socket.getPort());
+
         if (thread != null) thread.stop();
+
+        try {
+            outputStream.close();
+        } catch (IOException e) {
+        }
+
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+        }
 
         try {
             socket.close();

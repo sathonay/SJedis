@@ -66,7 +66,6 @@ public class ClientConnection {
     }
 
     public void send(Packet... packets) {
-        System.out.println(packets.length);
         for (Packet packet : packets) sendSerializable(packet);
     }
 
@@ -81,7 +80,6 @@ public class ClientConnection {
 
     private void interpretObject(Object object) {
         if ((!login && !(object instanceof PasswordPacket))) return; // TODO: close connection
-        System.out.println(object.getClass());
         handleConsumer(object).ifPresent(consumer -> consumer.accept(new Pair<>(this, object)));
     }
 

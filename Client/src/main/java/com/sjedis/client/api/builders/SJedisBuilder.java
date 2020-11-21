@@ -79,7 +79,7 @@ public class SJedisBuilder {
                         }
                         stop();
                     }
-                };
+                }.start();
                 return future;
             }
 

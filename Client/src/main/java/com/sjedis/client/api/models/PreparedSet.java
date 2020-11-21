@@ -1,4 +1,4 @@
-package com.sjedis.client.models;
+package com.sjedis.client.api.models;
 
 import java.util.HashMap;
 import java.util.Map;

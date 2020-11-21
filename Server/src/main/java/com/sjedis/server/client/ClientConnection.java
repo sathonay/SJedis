@@ -43,10 +43,12 @@ public class ClientConnection {
         }
     }
 
-    private Thread initConnectionThread() {
-        return new Thread(() ->
-                handleObject().ifPresent(this::interpretObject)
-        );
+    private void initConnectionThread() {
+        new Thread(this::waitObject).start();
+    }
+
+    private void waitObject() {
+        while (true) handleObject().ifPresent(this::interpretObject);
     }
 
     private Optional<Object> handleObject() {

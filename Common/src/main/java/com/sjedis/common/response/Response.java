@@ -3,7 +3,6 @@ package com.sjedis.common.response;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class Response implements Serializable {
 

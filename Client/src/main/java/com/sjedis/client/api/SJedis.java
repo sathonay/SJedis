@@ -1,24 +1,26 @@
 package com.sjedis.client.api;
 
+import com.sjedis.client.api.implementation.sjedis.SimpleSJedis;
+import com.sjedis.common.client.api.Connection;
+
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 public interface SJedis {
 
-    void setHost(String host);
-    String getHost();
+    interface SJedisBuilder {
+        SJedisBuilder host(String host);
+        SJedisBuilder port(int port);
+        SJedisBuilder password(String password);
 
-    void setPort(int port);
-    int getPort();
+        SJedis build();
+    }
 
-    void setPassword(String password);
-    String getPassword();
-
-    Optional<Connection> connect();
+    CompletableFuture<Connection> connect();
 
     List<Connection> getConnections();
 
-    CompletableFuture<Connection> connect(Consumer<Connection> consumer);
+    static SJedisBuilder builder() {
+        return SimpleSJedis.builder();
+    }
 }

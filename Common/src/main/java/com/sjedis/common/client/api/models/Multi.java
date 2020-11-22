@@ -1,4 +1,4 @@
-package com.sjedis.client.api.models;
+package com.sjedis.common.client.api.models;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,5 +15,4 @@ public class Multi<T> {
     public List<T> toList() {
         return typeList;
     }
-
 }

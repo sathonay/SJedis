@@ -1,12 +1,19 @@
 package com.sjedis.server;
 
-import com.sjedis.server.client.builder.ClientConnectionBuilder;
+import com.sjedis.common.map.PacketHandlerMap;
+import com.sjedis.common.packet.PasswordPacket;
+import com.sjedis.common.packet.RequestPacket;
+import com.sjedis.common.packet.ResponsePacket;
+import com.sjedis.common.packet.SetPacket;
+import com.sjedis.common.response.Response;
+import com.sjedis.server.connection.ClientConnection;
 import lombok.Data;
 import lombok.Getter;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +29,8 @@ public class Server {
 
     private final Map<String, Object> cache = new ConcurrentHashMap<>();
 
+    private final PacketHandlerMap<ClientConnection> handlerMap = new PacketHandlerMap<>();
+
     public Server(int port, String password) {
         this.port = port;
         this.password = password;
@@ -32,11 +41,33 @@ public class Server {
     private ServerSocket serverSocket;
 
     private void initServer() {
+        initHandlerMap();
         this.serverSocket = buildServerSocket();
         initConnectionThread();
         Runtime.getRuntime().addShutdownHook(buildShutdownThread());
 
         INSTANCE = this;
+    }
+
+    private void initHandlerMap() {
+        handlerMap.put(PasswordPacket.class, (connection, packet) -> {
+
+            System.out.println("password check");
+            if (connection.isAuth()) return;
+            Server server = Server.getINSTANCE();
+            if ((server.getPassword() == null || server.getPassword().equals(packet.password))) connection.setAuth(true);
+            else connection.close();
+        });
+
+        handlerMap.put(SetPacket.class, (connection, packet) -> Server.getINSTANCE().getCache().putAll(packet.map));
+
+        handlerMap.put(RequestPacket.class, (connection, packet) -> {
+            Map<String, Object> responseMap = new HashMap<>();
+            Map<String, Object> cache = Server.getINSTANCE().getCache();
+            for (String key : packet.keys) responseMap.put(key, cache.get(key));
+            System.out.println("send response");
+            connection.send(new ResponsePacket(packet.requestID, new Response(responseMap)));
+        });
     }
 
     private ServerSocket buildServerSocket() {
@@ -64,7 +95,7 @@ public class Server {
 
             private void buildClientConnection(Socket socket) {
                 System.out.println("new connection from " + socket.getInetAddress().getHostName() + "@" + socket.getPort());
-                new ClientConnectionBuilder(socket);
+                new ClientConnection(socket, handlerMap);
             }
 
             private Optional<Socket> handleConnection() {

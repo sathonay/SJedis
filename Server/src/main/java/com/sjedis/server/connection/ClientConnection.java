@@ -23,4 +23,12 @@ public class ClientConnection extends PacketConnection {
     protected void interpretPacket(Packet packet) {
         if (auth || packet instanceof PasswordPacket) super.interpretPacket(packet);
     }
+
+    @Override
+    public void close() {
+
+        System.out.println("close connection " + socket.getInetAddress().getHostName() + "@" + socket.getPort());
+
+        super.close();
+    }
 }

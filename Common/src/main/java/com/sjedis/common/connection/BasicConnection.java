@@ -10,7 +10,7 @@ import java.util.concurrent.ForkJoinPool;
 
 public abstract class BasicConnection implements Connection {
 
-    private final Socket socket;
+    protected final Socket socket;
     private final List<CompletableFuture<Object>> futures = new ArrayList<>();
 
     public BasicConnection(Socket socket) {

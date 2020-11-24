@@ -1,5 +1,7 @@
-package com.sjedis.common.connection;
+package com.sjedis.common.connection.implementations;
 
+
+import com.sjedis.common.connection.Connection;
 
 import java.io.*;
 import java.net.Socket;

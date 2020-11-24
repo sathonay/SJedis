@@ -1,6 +1,6 @@
-package com.sjedis.common.client.api.models;
+package com.sjedis.client.api.models;
 
-import com.sjedis.common.client.api.Connection;
+import com.sjedis.client.api.Connection;
 import lombok.Getter;
 
 

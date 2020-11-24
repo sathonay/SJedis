@@ -1,7 +1,7 @@
 package com.sjedis.client.api;
 
-import com.sjedis.client.api.implementation.sjedis.SimpleSJedis;
-import com.sjedis.common.client.api.Connection;
+import com.sjedis.client.api.implementations.sjedis.SimpleSJedis;
+import com.sjedis.client.api.Connection;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

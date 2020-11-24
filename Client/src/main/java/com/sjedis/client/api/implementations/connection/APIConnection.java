@@ -1,10 +1,10 @@
-package com.sjedis.client.api.implementation.connection;
+package com.sjedis.client.api.implementations.connection;
 
-import com.sjedis.common.client.api.Connection;
-import com.sjedis.common.client.api.models.Multi;
-import com.sjedis.common.client.api.models.PreparedSet;
-import com.sjedis.common.client.api.models.Response;
-import com.sjedis.common.connection.PacketConnection;
+import com.sjedis.client.api.Connection;
+import com.sjedis.client.api.models.Multi;
+import com.sjedis.client.api.models.PreparedSet;
+import com.sjedis.client.api.models.Response;
+import com.sjedis.common.connection.implementations.PacketConnection;
 import com.sjedis.common.map.PacketHandlerMap;
 import com.sjedis.common.packet.Packet;
 import com.sjedis.common.packet.RequestPacket;

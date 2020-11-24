@@ -1,4 +1,4 @@
-package com.sjedis.common.connection;
+package com.sjedis.common.connection.implementations;
 
 import com.sjedis.common.map.PacketHandlerMap;
 import com.sjedis.common.packet.Packet;

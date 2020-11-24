@@ -1,4 +1,4 @@
-package com.sjedis.client.api.implementations.connection;
+package com.sjedis.client.api.implementations;
 
 import com.sjedis.client.api.Connection;
 import com.sjedis.client.api.models.Multi;

@@ -1,7 +1,6 @@
-package com.sjedis.client.api.implementations.sjedis;
+package com.sjedis.client.api.implementations;
 
 import com.sjedis.client.api.SJedis;
-import com.sjedis.client.api.implementations.connection.APIConnection;
 import com.sjedis.client.api.Connection;
 import com.sjedis.client.api.models.Response;
 import com.sjedis.common.map.PacketHandlerMap;

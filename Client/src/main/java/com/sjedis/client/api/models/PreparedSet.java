@@ -24,6 +24,12 @@ public class PreparedSet {
         keys.toList().forEach(key -> set(key, value));
         return this;
     }
+    
+    
+    public PreparedSet set(Map<String, Object> map) {
+        setMap.putAll(map);
+        return this;
+    }
 
     public Map<String, Object> toMap() {
         return setMap;

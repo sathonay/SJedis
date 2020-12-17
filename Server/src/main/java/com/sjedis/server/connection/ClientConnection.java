@@ -20,6 +20,12 @@ public class ClientConnection extends PacketConnection {
     private boolean auth;
 
     @Override
+    protected void interpretObject(Object object) {
+        if (!auth && (object instanceof PasswordPacket)) close();
+        else super.interpretObject(object);
+    }
+
+    @Override
     protected void interpretPacket(Packet packet) {
         if (auth || packet instanceof PasswordPacket) super.interpretPacket(packet);
     }

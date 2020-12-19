@@ -17,7 +17,7 @@ public abstract class BasicConnection implements Connection {
 
     public BasicConnection(Socket socket) {
         this.socket = enableTCP(socket);
-        initConnection();
+        initStreams();
     }
 
     private Socket enableTCP(Socket socket) {
@@ -33,7 +33,7 @@ public abstract class BasicConnection implements Connection {
     private InputStream inputStream;
     private Thread thread;
 
-    private void initConnection() {
+    private void initStreams() {
         try {
             outputStream = socket.getOutputStream();
             inputStream = socket.getInputStream();

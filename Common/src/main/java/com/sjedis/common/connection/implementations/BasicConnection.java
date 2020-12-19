@@ -115,6 +115,8 @@ public abstract class BasicConnection implements Connection {
         if (thread != null) thread.stop();
 
         try {
+            outputStream.close();
+            inputStream.close();
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();

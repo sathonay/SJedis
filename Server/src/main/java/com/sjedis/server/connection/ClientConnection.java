@@ -21,7 +21,7 @@ public class ClientConnection extends PacketConnection {
 
     @Override
     protected void interpretObject(Object object) {
-        if (!auth && (object instanceof PasswordPacket)) close();
+        if (!auth && !(object instanceof PasswordPacket)) close(getNameAndPort() + " attempted to bypass the auth system");
         else super.interpretObject(object);
     }
 
@@ -30,11 +30,18 @@ public class ClientConnection extends PacketConnection {
         if (auth || packet instanceof PasswordPacket) super.interpretPacket(packet);
     }
 
+    public String getNameAndPort() {
+        return socket.getInetAddress().getHostName() + "@" + socket.getPort();
+    }
+
+    public void close(String message) {
+        System.out.println(message);
+        close();
+    }
+
     @Override
     public void close() {
-
-        System.out.println("close connection " + socket.getInetAddress().getHostName() + "@" + socket.getPort());
-
+        System.out.println("close connection " + getNameAndPort());
         super.close();
     }
 }

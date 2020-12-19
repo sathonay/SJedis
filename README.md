@@ -20,14 +20,29 @@ How to
 java -jar <file> <port> <password> 
 ```
 
-### Build SJedis
+### Use SJedis Client
 
 ```java
-        Work in progress
-```
+        SJedis jedis = SJedis.builder()
+                .host("127.0.0.1")
+                .port(1234)
+                .password("1234").build();
 
-### Use SJedis
-
-```java
-        Work in progress
+        jedis.connect().thenCompose(connection -> {
+            connection.set(
+                    new PreparedSet()
+                    .set("hello", "salut")
+                    .set("salut", "hello")
+            );
+            return connection.get(
+                    "hello",
+                    "salut",
+                    "holla"
+            );
+        }).thenAccept(response -> {
+            System.out.println(response.toMap());
+            response.getConnection().close();
+        }).whenComplete((unused, throwable) -> {
+            if (throwable != null) throwable.printStackTrace();
+        }).join();
 ```

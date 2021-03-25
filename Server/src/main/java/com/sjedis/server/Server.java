@@ -63,7 +63,6 @@ public class Server {
 
         handlerMap.put(RequestPacket.class, (connection, packet) -> {
             Map<String, Object> responseMap = new HashMap<>();
-            Map<String, Object> cache = Server.getINSTANCE().getCache();
             for (String key : packet.keys) responseMap.put(key, cache.get(key));
             connection.send(new ResponsePacket(packet.requestID, new Response(responseMap)));
         });

@@ -17,7 +17,7 @@ How to
 ### Run SJedis-server
 
 ```shell
-java -jar <file> <port> <password> 
+java -jar SJedis.jar <port> <password> 
 ```
 
 ### Use SJedis Client

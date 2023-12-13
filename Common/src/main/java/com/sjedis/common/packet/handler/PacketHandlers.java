@@ -1,10 +1,9 @@
-package com.sjedis.common.map;
+package com.sjedis.common.packet.handler;
 
 import com.sjedis.common.connection.Connection;
+import com.sjedis.common.map.PacketHandlerMap;
 import com.sjedis.common.packet.Packet;
 import com.sjedis.common.packet.PacketRegistry;
-
-import java.util.function.BiConsumer;
 
 public class PacketHandlers<C extends Connection> extends PacketHandlerMap {
 

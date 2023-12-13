@@ -1,8 +1,7 @@
 package com.sjedis.server.connection;
 
 import com.sjedis.common.connection.implementations.PacketConnection;
-import com.sjedis.common.map.PacketHandlerMap;
-import com.sjedis.common.map.PacketHandlers;
+import com.sjedis.common.packet.handler.PacketHandlers;
 import com.sjedis.common.packet.Packet;
 import com.sjedis.common.packet.PasswordPacket;
 import lombok.Getter;

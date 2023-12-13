@@ -9,4 +9,6 @@ public interface Connection {
     CompletableFuture<Object> catchObject();
 
     void close();
+
+    boolean isClosed();
 }

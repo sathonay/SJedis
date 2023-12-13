@@ -22,6 +22,8 @@ public interface Connection extends com.sjedis.common.connection.Connection {
 
     void set(PreparedSet preparedSet);
 
+    void set(String[] keys, Object[] objects);
+
     CompletableFuture<Response> get(String... keys);
 
     //CompletableFuture<Response> get(Consumer<Response> supplier, String... keys);

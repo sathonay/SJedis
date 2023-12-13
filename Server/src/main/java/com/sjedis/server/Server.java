@@ -1,7 +1,6 @@
 package com.sjedis.server;
 
-import com.sjedis.common.map.PacketHandlerMap;
-import com.sjedis.common.map.PacketHandlers;
+import com.sjedis.common.packet.handler.PacketHandlers;
 import com.sjedis.common.packet.PasswordPacket;
 import com.sjedis.common.packet.RequestPacket;
 import com.sjedis.common.packet.ResponsePacket;
@@ -52,7 +51,6 @@ public class Server {
 
     private void initHandlerMap() {
         packetHandlers.setHandler(PasswordPacket.class, (connection, packet) -> {
-            System.out.println("password check");
             if (connection.isAuth()) return;
             Server server = Server.getINSTANCE();
             if ((server.getPassword() == null || server.getPassword().equals(packet.password))) connection.setAuth(true);

@@ -31,6 +31,11 @@ public class PreparedSet {
         return this;
     }
 
+    public PreparedSet set(String[] keys, Object[] objects) {
+        for (int i = 0; i < keys.length; i++) setMap.put(keys[i], objects[i]);
+        return this;
+    }
+
     public Map<String, Object> toMap() {
         return setMap;
     }

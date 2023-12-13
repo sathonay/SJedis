@@ -9,7 +9,10 @@ import com.sjedis.common.map.PacketHandlerMap;
 import com.sjedis.common.packet.Packet;
 import com.sjedis.common.packet.RequestPacket;
 import com.sjedis.common.packet.SetPacket;
+import com.sjedis.common.packet.handler.PacketHandler;
+import com.sjedis.common.packet.handler.PacketHandlers;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -18,8 +21,8 @@ public class APIConnection extends PacketConnection implements Connection {
 
     private final Map<UUID, CompletableFuture<Response>> futureResponseMap = new HashMap<>();
 
-    public APIConnection(Socket socket, PacketHandlerMap handlerMap) {
-        super(socket, handlerMap);
+    public APIConnection(Socket socket, PacketHandlers packetHandlers) {
+        super(socket, packetHandlers);
     }
 
     @Override
@@ -50,6 +53,19 @@ public class APIConnection extends PacketConnection implements Connection {
     }
 
     @Override
+    public void set(String[] keys, Object[] objects) {
+        if (keys.length != objects.length) {
+            try {
+                throw new IOException("Keys and Objects size missmatch");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        set(new PreparedSet().set(keys, objects));
+    }
+
+    @Override
     public CompletableFuture<Response> get(String... keys) {
         return buildRequest(UUID.randomUUID(), keys);
     }
@@ -70,5 +86,10 @@ public class APIConnection extends PacketConnection implements Connection {
         futureResponseMap.values().forEach(future -> future.cancel(false));
         futureResponseMap.clear();
         super.close();
+    }
+
+    @Override
+    public boolean isClosed() {
+        return false;
     }
 }

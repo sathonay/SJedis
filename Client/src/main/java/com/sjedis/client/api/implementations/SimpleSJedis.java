@@ -4,6 +4,8 @@ import com.sjedis.client.api.SJedis;
 import com.sjedis.client.api.Connection;
 import com.sjedis.client.api.models.Response;
 import com.sjedis.common.map.PacketHandlerMap;
+import com.sjedis.common.map.PacketHandlers;
+import com.sjedis.common.packet.PacketRegistry;
 import com.sjedis.common.packet.PasswordPacket;
 import com.sjedis.common.packet.ResponsePacket;
 import com.sjedis.common.util.CompletableFutureUtil;
@@ -24,7 +26,7 @@ public class SimpleSJedis implements SJedis {
     private final int port;
     private final String password;
 
-    private final PacketHandlerMap<APIConnection> handlerMap = new PacketHandlerMap<>();
+    private final PacketHandlers<APIConnection> packetHandlers = new PacketHandlers<>();
 
     private final List<Connection> connections = new ArrayList<>();
 
@@ -36,7 +38,7 @@ public class SimpleSJedis implements SJedis {
     }
 
     public void initPacketHandler() {
-        handlerMap.put(ResponsePacket.class, (connection, packet) -> {
+        packetHandlers.setHandler(ResponsePacket.class, (connection, packet) -> {
             connection.getCompletableFuture(packet.requestID).ifPresent(responseCompletableFuture ->
                     ForkJoinPool.commonPool().execute(() -> responseCompletableFuture.complete(new Response(connection, packet.response)))
             );
@@ -53,7 +55,7 @@ public class SimpleSJedis implements SJedis {
     }
 
     private Connection buildConnection() throws IOException {
-        APIConnection connection = new APIConnection(buildSocket(), handlerMap);
+        APIConnection connection = new APIConnection(buildSocket(), packetHandlers);
         connection.send(new PasswordPacket(password));
         return connection;
     }

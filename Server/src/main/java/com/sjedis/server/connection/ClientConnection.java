@@ -2,6 +2,7 @@ package com.sjedis.server.connection;
 
 import com.sjedis.common.connection.implementations.PacketConnection;
 import com.sjedis.common.map.PacketHandlerMap;
+import com.sjedis.common.map.PacketHandlers;
 import com.sjedis.common.packet.Packet;
 import com.sjedis.common.packet.PasswordPacket;
 import lombok.Getter;
@@ -12,8 +13,8 @@ import java.net.Socket;
 public class ClientConnection extends PacketConnection {
 
 
-    public ClientConnection(Socket socket, PacketHandlerMap handlerMap) {
-        super(socket, handlerMap);
+    public ClientConnection(Socket socket, PacketHandlers packetHandlers) {
+        super(socket, packetHandlers);
     }
 
     @Getter @Setter

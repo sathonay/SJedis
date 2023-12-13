@@ -10,6 +10,7 @@ public class ResponsePacket extends Packet {
     public final Response response;
 
     public ResponsePacket(UUID requestID, Response response) {
+        super((byte) PacketRegistry.RESPONSE_PACKET.ordinal());
         this.requestID = requestID;
         this.response = response;
     }

@@ -1,6 +1,7 @@
 package com.sjedis.server;
 
 import com.sjedis.common.map.PacketHandlerMap;
+import com.sjedis.common.map.PacketHandlers;
 import com.sjedis.common.packet.PasswordPacket;
 import com.sjedis.common.packet.RequestPacket;
 import com.sjedis.common.packet.ResponsePacket;
@@ -29,7 +30,7 @@ public class Server {
 
     private final Map<String, Object> cache = new ConcurrentHashMap<>();
 
-    private final PacketHandlerMap<ClientConnection> handlerMap = new PacketHandlerMap<>();
+    private final PacketHandlers<ClientConnection> packetHandlers = new PacketHandlers<>();
 
     public Server(int port, String password) {
         this.port = port;
@@ -50,8 +51,7 @@ public class Server {
     }
 
     private void initHandlerMap() {
-        handlerMap.put(PasswordPacket.class, (connection, packet) -> {
-
+        packetHandlers.setHandler(PasswordPacket.class, (connection, packet) -> {
             System.out.println("password check");
             if (connection.isAuth()) return;
             Server server = Server.getINSTANCE();
@@ -59,9 +59,9 @@ public class Server {
             else connection.close();
         });
 
-        handlerMap.put(SetPacket.class, (connection, packet) -> Server.getINSTANCE().getCache().putAll(packet.map));
+        packetHandlers.setHandler(SetPacket.class, (connection, packet) -> Server.getINSTANCE().getCache().putAll(packet.map));
 
-        handlerMap.put(RequestPacket.class, (connection, packet) -> {
+        packetHandlers.setHandler(RequestPacket.class, (connection, packet) -> {
             Map<String, Object> responseMap = new HashMap<>();
             for (String key : packet.keys) responseMap.put(key, cache.get(key));
             connection.send(new ResponsePacket(packet.requestID, new Response(responseMap)));
@@ -93,7 +93,7 @@ public class Server {
 
             private void buildClientConnection(Socket socket) {
                 System.out.println("new connection from " + socket.getInetAddress().getHostName() + "@" + socket.getPort());
-                new ClientConnection(socket, handlerMap);
+                new ClientConnection(socket, packetHandlers);
             }
 
             private Optional<Socket> handleConnection() {

@@ -3,12 +3,19 @@ package com.sjedis;
 import com.sjedis.server.Server;
 
 public class Main {
+
     public static void main(String[] args) {
-        if (args.length < 2) {
-            System.out.println("Missing password or port java -jar <file> <password> <port>");
-            System.exit(0);
+        if (args.length < 1) {
+            System.err.println("Port missing: java -jar <file> <port> <password>");
             return;
         }
-        new Server(args[0], Integer.parseInt(args[1]));
+
+        String password = args.length > 1 ? args[1] : null;
+
+        try {
+            new Server(Integer.parseInt(args[0]), password);
+        } catch (NumberFormatException exception) {
+            System.err.println("The port is not a valid number");
+        }
     }
 }

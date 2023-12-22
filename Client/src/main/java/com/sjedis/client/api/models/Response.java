@@ -9,7 +9,7 @@ public class Response extends com.sjedis.common.response.Response {
     private final Connection connection;
 
     public Response(Connection connection, com.sjedis.common.response.Response response) {
-        super(response.toMap());
+        super(response.toArray());
         this.connection = connection;
     }
 }

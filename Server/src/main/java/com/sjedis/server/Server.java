@@ -60,9 +60,9 @@ public class Server {
         packetHandlers.setHandler(SetPacket.class, (connection, packet) -> Server.getINSTANCE().getCache().putAll(packet.map));
 
         packetHandlers.setHandler(RequestPacket.class, (connection, packet) -> {
-            Map<String, Object> responseMap = new HashMap<>();
-            for (String key : packet.keys) responseMap.put(key, cache.get(key));
-            connection.send(new ResponsePacket(packet.requestID, new Response(responseMap)));
+            Object[] responseData = new Object[packet.keys.length];
+            for (int i = 0; i < packet.keys.length; i++) responseData[i] = cache.get(packet.keys[i]);
+            connection.send(new ResponsePacket(packet.requestID, new Response(responseData)));
         });
     }
 

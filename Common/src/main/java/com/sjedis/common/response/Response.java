@@ -1,22 +1,25 @@
 package com.sjedis.common.response;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 public class Response implements Serializable {
 
-    private final Map<String, Object> response;
+    private final Object[] data;
 
-    public Response(Map<String, Object> response) {
-        this.response = response;
+    public Response(Object[] data) {
+        this.data = data;
     }
 
-    public <T> T get(String key) {
-        return (T) response.get(key);
+    public <T> T get(int index) {
+        return index <= (data.length - 1) ?  (T) data[index] : null;
     }
 
-    public <K, V> Map<K, V> toMap() {
-        return new HashMap<>((Map<? extends K, ? extends V>) response);
+    public <T> Optional<T> getOptional(int index) {
+        return Optional.ofNullable(get(index));
+    }
+
+    public <T> T[] toArray() {
+        return (T[]) data.clone();
     }
 }

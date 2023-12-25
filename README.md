@@ -30,9 +30,8 @@ java -jar SJedis.jar <port> <password>
 
         jedis.connect().thenCompose(connection -> {
             connection.set(
-                    new PreparedSet()
-                    .set("hello", "salut")
-                    .set("salut", "hello")
+                    new String[]{"hello", "salut"}
+                    new Object[]{"salut", "hello"}
             );
             return connection.get(
                     "hello",
@@ -40,7 +39,7 @@ java -jar SJedis.jar <port> <password>
                     "holla"
             );
         }).thenAccept(response -> {
-            System.out.println(response.toMap());
+            System.out.println(Arrays.toString(response.toArray()));
             response.getConnection().close();
         }).whenComplete((unused, throwable) -> {
             if (throwable != null) throwable.printStackTrace();

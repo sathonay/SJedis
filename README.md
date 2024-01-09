@@ -1,6 +1,6 @@
 # SJedis
 
-That's something ¯\_(ツ)_/¯
+Key-Value hover TCP/IP sockets
 
 Requirements
 -

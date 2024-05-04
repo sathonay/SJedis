@@ -1,7 +1,5 @@
 package com.sjedis.client.api;
 
-import com.sjedis.client.api.models.Multi;
-import com.sjedis.client.api.models.PreparedSet;
 import com.sjedis.client.api.models.Response;
 import com.sjedis.common.packet.Packet;
 

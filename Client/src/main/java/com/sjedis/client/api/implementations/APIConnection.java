@@ -45,7 +45,7 @@ public class APIConnection extends PacketConnection implements Connection {
             }
         }
 
-        set(keys, objects);
+        send(new SetPacket(keys, objects));
     }
 
     @Override

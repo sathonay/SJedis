@@ -3,7 +3,6 @@ package com.sjedis.client.api;
 import com.sjedis.client.api.models.Response;
 import com.sjedis.common.packet.Packet;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;

@@ -34,22 +34,7 @@ public class APIConnection extends PacketConnection implements Connection {
 
     @Override
     public void set(String key, Object value) {
-        set(Collections.singletonMap(key, value));
-    }
-
-    @Override
-    public void set(Multi<String> keys, Object value) {
-        set(new PreparedSet().set(keys, value));
-    }
-
-    @Override
-    public void set(Map<String, Object> map) {
-        send(new SetPacket(map));
-    }
-
-    @Override
-    public void set(PreparedSet preparedSet) {
-        set(preparedSet.toMap());
+        set(new String[]{key}, new Object[]{value});
     }
 
     @Override
@@ -62,7 +47,7 @@ public class APIConnection extends PacketConnection implements Connection {
             }
         }
 
-        set(new PreparedSet().set(keys, objects));
+        set(keys, objects);
     }
 
     @Override

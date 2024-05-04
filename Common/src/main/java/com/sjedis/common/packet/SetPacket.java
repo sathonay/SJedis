@@ -4,10 +4,12 @@ import java.util.Map;
 
 public class SetPacket extends Packet {
 
-    public final Map<String, Object> map;
+    public final String[] keys;
+    public final Object[] values;
 
-    public SetPacket(Map<String, Object> map) {
+    public SetPacket(String[] keys, Object[] values) {
         super((byte) PacketRegistry.SET_PACKET.ordinal());
-        this.map = map;
+        this.keys = keys;
+        this.values = values;
     }
 }

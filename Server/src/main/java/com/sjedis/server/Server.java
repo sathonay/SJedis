@@ -57,7 +57,11 @@ public class Server {
             else connection.close();
         });
 
-        packetHandlers.setHandler(SetPacket.class, (connection, packet) -> Server.getINSTANCE().getCache().putAll(packet.map));
+        packetHandlers.setHandler(SetPacket.class, (connection, packet) -> {
+
+            Map<String, Object> cache = Server.getINSTANCE().getCache();
+            for (int i = 0; i < packet.keys.length; i++) cache.put(packet.keys[i], packet.values[i]);
+        });
 
         packetHandlers.setHandler(RequestPacket.class, (connection, packet) -> {
             Object[] responseData = new Object[packet.keys.length];

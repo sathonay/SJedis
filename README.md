@@ -45,3 +45,6 @@ java -jar SJedis.jar <port> <password>
             if (throwable != null) throwable.printStackTrace();
         }).join();
 ```
+
+### TODO
+* value with life time (time to live ttl)

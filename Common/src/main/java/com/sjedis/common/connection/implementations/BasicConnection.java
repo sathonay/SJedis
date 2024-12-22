@@ -2,21 +2,34 @@ package com.sjedis.common.connection.implementations;
 
 
 import com.sjedis.common.connection.Connection;
+import com.sjedis.common.util.AESUtil;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SealedObject;
+
 public abstract class BasicConnection implements Connection {
+
+    private final String password;
 
     protected final Socket socket;
     private final List<CompletableFuture<Object>> futures = new ArrayList<>();
 
-    public BasicConnection(Socket socket) {
+    public BasicConnection(Socket socket, String password) {
         this.socket = enableTCP(socket);
+        this.password = password;
         initStreams();
     }
 
@@ -67,7 +80,15 @@ public abstract class BasicConnection implements Connection {
     private Object readObject() {
         try {
             ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-            return objectInputStream.readObject();
+            try {
+                return AESUtil.decryptObject("AES/CBC/PKCS5Padding" , (SealedObject) objectInputStream.readObject(), AESUtil.getKeyFromPassword(password));
+            } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
+                    | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException
+                    | InvalidKeySpecException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return null;
+            }
         } catch (IOException | ClassNotFoundException e) {
             close();
             return null;
@@ -94,7 +115,12 @@ public abstract class BasicConnection implements Connection {
     protected void sendSerializable(Serializable object) {
         try {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-            objectOutputStream.writeObject(object);
+            try {
+                objectOutputStream.writeObject(AESUtil.encryptObject("AES/CBC/PKCS5Padding", object, AESUtil.getKeyFromPassword(password)));
+            } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
+                    | InvalidAlgorithmParameterException | IllegalBlockSizeException | InvalidKeySpecException e) {
+                e.printStackTrace();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

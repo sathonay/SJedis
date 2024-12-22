@@ -19,8 +19,8 @@ public class APIConnection extends PacketConnection implements Connection {
 
     private final Map<UUID, CompletableFuture<Response>> futureResponseMap = new HashMap<>();
 
-    public APIConnection(Socket socket, PacketHandlers packetHandlers) {
-        super(socket, packetHandlers);
+    public APIConnection(Socket socket, String password, PacketHandlers packetHandlers) {
+        super(socket, password, packetHandlers);
     }
 
     @Override

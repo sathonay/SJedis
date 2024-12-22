@@ -13,7 +13,6 @@ import lombok.Getter;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,7 +94,7 @@ public class Server {
 
             private void buildClientConnection(Socket socket) {
                 System.out.println("new connection from " + socket.getInetAddress().getHostName() + "@" + socket.getPort());
-                new ClientConnection(socket, packetHandlers);
+                new ClientConnection(socket, password, packetHandlers);
             }
 
             private Optional<Socket> handleConnection() {

@@ -1,19 +1,16 @@
 package com.sjedis.common.connection.implementations;
 
-import com.sjedis.common.map.PacketHandlerMap;
 import com.sjedis.common.packet.Packet;
 import com.sjedis.common.packet.handler.PacketHandlers;
 
 import java.net.Socket;
-import java.util.Optional;
-import java.util.function.BiConsumer;
 
 public class PacketConnection extends BasicConnection {
 
     private final PacketHandlers<PacketConnection> packetHandler;
 
-    public PacketConnection(Socket socket, PacketHandlers<PacketConnection> packetHandler) {
-        super(socket);
+    public PacketConnection(Socket socket, String password, PacketHandlers<PacketConnection> packetHandler) {
+        super(socket, password);
         this.packetHandler = packetHandler;
     }
 

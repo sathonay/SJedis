@@ -12,8 +12,8 @@ import java.net.Socket;
 public class ClientConnection extends PacketConnection {
 
 
-    public ClientConnection(Socket socket, PacketHandlers packetHandlers) {
-        super(socket, packetHandlers);
+    public ClientConnection(Socket socket, String password, PacketHandlers packetHandlers) {
+        super(socket, password, packetHandlers);
     }
 
     @Getter @Setter

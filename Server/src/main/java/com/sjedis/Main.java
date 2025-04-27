@@ -26,10 +26,10 @@ public class Main {
             return;
         }
 
-        String password = args.length > 1 ? args[1] : null;
-
         try {
-            new Server(Integer.parseInt(args[0]), password);
+            int port = Integer.parseInt(args[0]);
+            String password = args[1];
+            new Server(port, password);
         } catch (NumberFormatException exception) {
             System.err.println("The port is not a valid number");
         }

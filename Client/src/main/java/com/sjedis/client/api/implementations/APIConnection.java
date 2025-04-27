@@ -17,7 +17,7 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-public class APIConnection extends AESPacketConnection implements Connection{
+public class APIConnection extends AESPacketConnection implements Connection {
 
     private final Map<UUID, CompletableFuture<Response>> futureResponseMap = new HashMap<>();
 

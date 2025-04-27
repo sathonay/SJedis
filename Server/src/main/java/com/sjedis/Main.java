@@ -13,9 +13,10 @@ public class Main {
             new File("server.conf")
         ).readFile();
         
-        if (args.length < 2 
-            && conf.contains("port") 
-            && conf.contains("password")
+        if (args.length < 2
+                && conf != null
+                && conf.contains("port")
+                && conf.contains("password")
         ) {
             args = new String[]{conf.getString("port"), conf.getString("password")};
         }

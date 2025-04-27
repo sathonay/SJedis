@@ -18,6 +18,12 @@ public class ConfigFile {
 
     public ConfigFile readFile()
     {
+        if (!file.exists())
+        {
+            System.out.println("Unable to read config file (it doesn't exist): " + file.getAbsolutePath());
+            return this;
+        }
+
         try {
             Scanner scan = new Scanner(file);
 
@@ -32,6 +38,10 @@ public class ConfigFile {
             e.printStackTrace();
         }
         return this;
+    }
+
+    public boolean exist() {
+        return file.exists();
     }
 
     public String getString(String key)

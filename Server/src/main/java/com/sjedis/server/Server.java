@@ -7,7 +7,6 @@ import com.sjedis.common.packet.ResponsePacket;
 import com.sjedis.common.packet.SetPacket;
 import com.sjedis.common.response.Response;
 import com.sjedis.server.connection.ClientConnection;
-import javafx.util.Pair;
 import lombok.Data;
 import lombok.Getter;
 
@@ -16,7 +15,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Data
 public class Server {
@@ -58,7 +56,6 @@ public class Server {
         });
 
         packetHandlers.setHandler(SetPacket.class, (connection, packet) -> {
-
             Map<String, Object> cache = Server.getINSTANCE().getCache();
             for (int i = 0; i < packet.keys.length; i++) cache.put(packet.keys[i], packet.values[i]);
         });

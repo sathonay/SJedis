@@ -7,17 +7,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public interface Connection extends com.sjedis.common.connection.Connection {
-
-    void send(Packet... packets);
+public interface Connection extends com.sjedis.common.connection.AESConnection {
 
     void set(String key, Object value);
 
     void set(String[] keys, Object[] objects);
 
     CompletableFuture<Response> get(String... keys);
-
-    //CompletableFuture<Response> get(Consumer<Response> supplier, String... keys);
 
     Optional<CompletableFuture<Response>> getCompletableFuture(UUID uuid);
 

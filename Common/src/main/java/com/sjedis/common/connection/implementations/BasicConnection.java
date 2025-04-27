@@ -2,129 +2,100 @@ package com.sjedis.common.connection.implementations;
 
 
 import com.sjedis.common.connection.Connection;
-import com.sjedis.common.util.AESUtil;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SealedObject;
-
 public abstract class BasicConnection implements Connection {
 
-    private final String password;
 
     protected final Socket socket;
     private final List<CompletableFuture<Object>> futures = new ArrayList<>();
 
-    public BasicConnection(Socket socket, String password) {
-        this.socket = enableTCP(socket);
-        this.password = password;
-        initStreams();
+    protected ObjectOutputStream outputStream;
+    protected ObjectInputStream inputStream;
+    private Thread thread;
+
+    public BasicConnection(Socket socket) {
+        try {
+            this.socket = enableTCP(socket);
+            initStreams();
+            initConnectionThread();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw null;
+        }
     }
 
-    private Socket enableTCP(Socket socket) {
+    @Override
+    public ObjectInputStream getInputStream() {
+        return inputStream;
+    }
+
+    @Override
+    public ObjectOutputStream getOutputStream() {
+        return outputStream;
+    }
+
+    private Socket enableTCP(Socket socket) throws Exception {
         try {
             socket.setTcpNoDelay(true);
         } catch (SocketException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return socket;
     }
 
-    private OutputStream outputStream;
-    private InputStream inputStream;
-    private Thread thread;
-
-    private void initStreams() {
+    private void initStreams() throws Exception {
         try {
-            outputStream = socket.getOutputStream();
-            inputStream = socket.getInputStream();
-            initConnectionThread();
+            outputStream = new ObjectOutputStream(socket.getOutputStream());
+            inputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     private void initConnectionThread() {
-        thread = new Thread(this::waitObject);
+        thread = new Thread(this::handleObjects);
         thread.start();
     }
 
-    private void waitObject() {
-        while (true) handleObject().ifPresent(object -> {
-            ForkJoinPool.commonPool().execute(() -> {
-                futures.forEach(future -> future.complete(object));
-                futures.clear();
-            });
-            interpretObject(object);
-        });
+    private void handleObjects() {
+        try {
+            do {
+                waitObject().ifPresent(object -> {
+                    ForkJoinPool.commonPool().execute(() -> {
+                        futures.forEach(future -> future.complete(object));
+                        futures.clear();
+                    });
+                    interpretObject(object);
+                });
+            }
+            while (true);
+        } catch (Exception e) {
+            close();
+        }
     }
 
-    private Optional<Object> handleObject() {
+    private Optional<Object> waitObject() throws Exception {
         return Optional.ofNullable(readObject());
     }
 
     protected abstract void interpretObject(Object object);
 
-    private Object readObject() {
-        try {
-            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-            try {
-                return AESUtil.decryptObject("AES/CBC/PKCS5Padding" , (SealedObject) objectInputStream.readObject(), AESUtil.getKeyFromPassword(password));
-            } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
-                    | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException
-                    | InvalidKeySpecException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return null;
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            close();
-            return null;
-        }
-    }
 
     @Override
     public void send(Object... objects) {
         for (Object object : objects) {
-            if (object instanceof Serializable) sendSerializable((Serializable) object);
-            else sendObject(object);
+            if (object instanceof Serializable) writeObject((Serializable) object);
+            else throw new IllegalArgumentException("Object " + object.getClass().getName() + " is not serializable");
         }
     }
 
-    protected void sendObject(Object object) {
-        try {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-            objectOutputStream.writeObject(object);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    protected void sendSerializable(Serializable object) {
-        try {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-            try {
-                objectOutputStream.writeObject(AESUtil.encryptObject("AES/CBC/PKCS5Padding", object, AESUtil.getKeyFromPassword(password)));
-            } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
-                    | InvalidAlgorithmParameterException | IllegalBlockSizeException | InvalidKeySpecException e) {
-                e.printStackTrace();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public CompletableFuture<Object> catchObject() {
@@ -138,7 +109,7 @@ public abstract class BasicConnection implements Connection {
         futures.forEach(future -> future.cancel(false));
         futures.clear();
 
-        if (thread != null) thread.stop();
+        if (thread != null) thread.interrupt();
 
         try {
             outputStream.close();

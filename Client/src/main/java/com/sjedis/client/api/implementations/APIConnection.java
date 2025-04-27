@@ -2,6 +2,8 @@ package com.sjedis.client.api.implementations;
 
 import com.sjedis.client.api.Connection;
 import com.sjedis.client.api.models.Response;
+import com.sjedis.common.connection.AESConnection;
+import com.sjedis.common.connection.implementations.AESPacketConnection;
 import com.sjedis.common.connection.implementations.PacketConnection;
 import com.sjedis.common.map.PacketHandlerMap;
 import com.sjedis.common.packet.Packet;
@@ -15,7 +17,7 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-public class APIConnection extends PacketConnection implements Connection {
+public class APIConnection extends AESPacketConnection implements Connection{
 
     private final Map<UUID, CompletableFuture<Response>> futureResponseMap = new HashMap<>();
 
@@ -24,9 +26,9 @@ public class APIConnection extends PacketConnection implements Connection {
     }
 
     @Override
-    public void send(Packet... packets) {
-        for (Packet packet : packets) {
-            sendSerializable(packet);
+    public void send(Object... objects) {
+        for (Object packet : objects) {
+            writeObject(packet);
         }
     }
 

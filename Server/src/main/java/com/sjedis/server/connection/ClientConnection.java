@@ -1,5 +1,7 @@
 package com.sjedis.server.connection;
 
+import com.sjedis.common.connection.AESConnection;
+import com.sjedis.common.connection.implementations.AESPacketConnection;
 import com.sjedis.common.connection.implementations.PacketConnection;
 import com.sjedis.common.packet.handler.PacketHandlers;
 import com.sjedis.common.packet.Packet;
@@ -9,8 +11,7 @@ import lombok.Setter;
 
 import java.net.Socket;
 
-public class ClientConnection extends PacketConnection {
-
+public class ClientConnection extends AESPacketConnection {
 
     public ClientConnection(Socket socket, String password, PacketHandlers packetHandlers) {
         super(socket, password, packetHandlers);

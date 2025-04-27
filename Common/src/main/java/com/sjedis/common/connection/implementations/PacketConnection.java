@@ -9,8 +9,8 @@ public class PacketConnection extends BasicConnection {
 
     private final PacketHandlers<PacketConnection> packetHandler;
 
-    public PacketConnection(Socket socket, String password, PacketHandlers<PacketConnection> packetHandler) {
-        super(socket, password);
+    public PacketConnection(Socket socket, PacketHandlers<PacketConnection> packetHandler) {
+        super(socket);
         this.packetHandler = packetHandler;
     }
 

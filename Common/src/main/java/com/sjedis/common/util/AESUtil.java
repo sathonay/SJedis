@@ -46,17 +46,17 @@ public class AESUtil {
         return sealedObject;
     }
 
-public static IvParameterSpec generateIv() {
-    byte[] iv = new byte[16];
-    new SecureRandom().nextBytes(iv);
-    return new IvParameterSpec(iv);
-}
+    public static IvParameterSpec generateIv() {
+        byte[] iv = new byte[16];
+        new SecureRandom().nextBytes(iv);
+        return new IvParameterSpec(iv);
+    }
 
-public static IvParameterSpec generateIv(byte[] b) {
-    if (b.length > 16)
-        b = Arrays.copyOf(b, 16);
-    return new IvParameterSpec(b);
-}
+    public static IvParameterSpec generateIv(byte[] b) {
+        if (b.length > 16)
+            b = Arrays.copyOf(b, 16);
+        return new IvParameterSpec(b);
+    }
 
     public static Serializable decryptObject(String algorithm, SealedObject sealedObject,
         SecretKey key) throws NoSuchPaddingException,

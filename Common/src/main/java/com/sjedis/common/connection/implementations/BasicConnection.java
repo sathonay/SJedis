@@ -12,93 +12,90 @@ import java.util.concurrent.ForkJoinPool;
 
 public abstract class BasicConnection implements Connection {
 
+
     protected final Socket socket;
     private final List<CompletableFuture<Object>> futures = new ArrayList<>();
 
+    protected ObjectOutputStream outputStream;
+    protected ObjectInputStream inputStream;
+    private Thread thread;
+
     public BasicConnection(Socket socket) {
-        this.socket = enableTCP(socket);
-        initStreams();
+        try {
+            this.socket = enableTCP(socket);
+            initStreams();
+            initConnectionThread();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw null;
+        }
     }
 
-    private Socket enableTCP(Socket socket) {
+    @Override
+    public ObjectInputStream getInputStream() {
+        return inputStream;
+    }
+
+    @Override
+    public ObjectOutputStream getOutputStream() {
+        return outputStream;
+    }
+
+    private Socket enableTCP(Socket socket) throws Exception {
         try {
             socket.setTcpNoDelay(true);
         } catch (SocketException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return socket;
     }
 
-    private OutputStream outputStream;
-    private InputStream inputStream;
-    private Thread thread;
-
-    private void initStreams() {
+    private void initStreams() throws Exception {
         try {
-            outputStream = socket.getOutputStream();
-            inputStream = socket.getInputStream();
-            initConnectionThread();
+            outputStream = new ObjectOutputStream(socket.getOutputStream());
+            inputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     private void initConnectionThread() {
-        thread = new Thread(this::waitObject);
+        thread = new Thread(this::handleObjects);
         thread.start();
     }
 
-    private void waitObject() {
-        while (true) handleObject().ifPresent(object -> {
-            ForkJoinPool.commonPool().execute(() -> {
-                futures.forEach(future -> future.complete(object));
-                futures.clear();
-            });
-            interpretObject(object);
-        });
+    private void handleObjects() {
+        try {
+            do {
+                waitObject().ifPresent(object -> {
+                    ForkJoinPool.commonPool().execute(() -> {
+                        futures.forEach(future -> future.complete(object));
+                        futures.clear();
+                    });
+                    interpretObject(object);
+                });
+            }
+            while (true);
+        } catch (Exception e) {
+            close();
+        }
     }
 
-    private Optional<Object> handleObject() {
+    private Optional<Object> waitObject() throws Exception {
         return Optional.ofNullable(readObject());
     }
 
     protected abstract void interpretObject(Object object);
 
-    private Object readObject() {
-        try {
-            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-            return objectInputStream.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            close();
-            return null;
-        }
-    }
 
     @Override
     public void send(Object... objects) {
         for (Object object : objects) {
-            if (object instanceof Serializable) sendSerializable((Serializable) object);
-            else sendObject(object);
+            if (object instanceof Serializable) writeObject((Serializable) object);
+            else throw new IllegalArgumentException("Object " + object.getClass().getName() + " is not serializable");
         }
     }
 
-    protected void sendObject(Object object) {
-        try {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-            objectOutputStream.writeObject(object);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    protected void sendSerializable(Serializable object) {
-        try {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-            objectOutputStream.writeObject(object);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public CompletableFuture<Object> catchObject() {
@@ -112,7 +109,7 @@ public abstract class BasicConnection implements Connection {
         futures.forEach(future -> future.cancel(false));
         futures.clear();
 
-        if (thread != null) thread.stop();
+        if (thread != null) thread.interrupt();
 
         try {
             outputStream.close();

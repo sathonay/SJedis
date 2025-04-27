@@ -53,7 +53,7 @@ public class SimpleSJedis implements SJedis {
     }
 
     private Connection buildConnection() throws IOException {
-        APIConnection connection = new APIConnection(buildSocket(), packetHandlers);
+        APIConnection connection = new APIConnection(buildSocket(), password, packetHandlers);
         connection.send(new PasswordPacket(password));
         return connection;
     }

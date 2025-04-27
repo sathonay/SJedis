@@ -46,5 +46,9 @@ java -jar SJedis.jar <port> <password>
         }).join();
 ```
 
+## License
+
+See the [LICENSE](LICENSE.txt) file for license rights and limitations (GPL).
+
 ### TODO
 * value with life time (time to live ttl)

@@ -7,16 +7,16 @@ import com.sjedis.common.packet.ResponsePacket;
 import com.sjedis.common.packet.SetPacket;
 import com.sjedis.common.response.Response;
 import com.sjedis.server.connection.ClientConnection;
+import javafx.util.Pair;
 import lombok.Data;
 import lombok.Getter;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Data
 public class Server {
@@ -95,7 +95,7 @@ public class Server {
 
             private void buildClientConnection(Socket socket) {
                 System.out.println("new connection from " + socket.getInetAddress().getHostName() + "@" + socket.getPort());
-                new ClientConnection(socket, packetHandlers);
+                new ClientConnection(socket, password, packetHandlers);
             }
 
             private Optional<Socket> handleConnection() {

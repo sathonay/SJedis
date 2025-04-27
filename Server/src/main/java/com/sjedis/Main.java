@@ -28,10 +28,12 @@ public class Main {
 
         try {
             int port = Integer.parseInt(args[0]);
+            if (port < 1 || port > 65535)
+                throw new NumberFormatException();
             String password = args[1];
             new Server(port, password);
         } catch (NumberFormatException exception) {
-            System.err.println("The port is not a valid number");
+            System.err.println("The port must be an integer, in range [1, 65535]");
         }
     }
 }

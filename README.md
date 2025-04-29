@@ -1,6 +1,6 @@
 # SJedis
 
-Key-Value hover TCP/IP sockets (AES)
+Key-Value hover TCP/IP sockets
 
 Requirements
 -
